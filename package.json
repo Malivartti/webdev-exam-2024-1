@@ -1,0 +1,17 @@
+{
+  "name": "exam",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "htmlhint": "npx htmlhint \"**/*.html\"",
+    "lint:js": "npx eslint \"**/*.js\"",
+    "lint:js:fix": "npx eslint \"**/*.js\" --fix"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "eslint": "^9.17.0",
+    "htmlhint": "^1.1.4"
+  }
+}
