@@ -43,13 +43,38 @@ class ProductsView {
                     <p class="card-text"></p>
                 </div>
             </div>
-            <button class="btn btn-sm btn-outline-primary">В корзину</button>
+            <button class="btn btn-sm btn-primary">В корзину</button>
         </div>
         </div>
         `;
         const node = template.content.cloneNode(true);
 
+        const btn = node.querySelector('button');
+
+        const toggleButton = () => {
+            if (this.hasProductInCart(product.id)) {
+                btn.textContent = 'В корзине';
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-success');
+            } else {
+                btn.textContent = 'В корзину';
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-primary');
+            }
+        };
+        
+        toggleButton();
+        btn.addEventListener('click', () => {
+            this.onClickProduct(product.id);
+            toggleButton();
+        });
+
         return node;
+    }
+
+    handleCartButton(onClick, hasInCart) {
+        this.onClickProduct = onClick;
+        this.hasProductInCart = hasInCart;
     }
 
     _createHTMLProductRating(rating) {

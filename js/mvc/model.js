@@ -32,11 +32,24 @@ class Product {
 const STORAGE_KEY_SEARCH = 'product-search';
 const STORAGE_KEY_SORT = 'product-sort';
 const STORAGE_KEY_FILTER = 'product-filter';
+const STORAGE_KEY_cart = 'cart-products';
 
 class ProductsModel {
     constructor() {
         this._storage = new Storage();
         this._products = [];
+        this._cart = new Set();
+
+        this._init();
+    }
+
+    _init() {
+        const cartValue = this._storage.getItem(STORAGE_KEY_cart);
+        if (cartValue) this._cart = new Set(cartValue);
+    }
+
+    _saveCart() {
+        this._storage.setItem(STORAGE_KEY_cart, Array.from(this._cart));
     }
 
     async fetchProducts() {
@@ -52,6 +65,38 @@ class ProductsModel {
         return Array.from(new Set(
             this._products.map(product => product.main_category)
         ));
+    }
+
+    toggleProductInCart(id) {
+        if (this.hasProductInCart(id)) {
+            this.removeProductFromCart(id);
+        } else {
+            this.addProductToCart(id);
+        }
+    }
+
+    addProductToCart(id) {
+        this._cart.add(id);
+        this._saveCart();
+    }
+
+    removeProductFromCart(id) {
+        this._cart.delete(id);
+        this._saveCart();
+    }
+
+    hasProductInCart(id) {
+        return this._cart.has(id);
+    }
+
+    clearCart() {
+        this._cart.clear();
+    }
+
+    getCartProducts() {
+        return this._products.filter((product) => 
+            this.hasProductInCart(product.id)
+        );
     }
 }
 
