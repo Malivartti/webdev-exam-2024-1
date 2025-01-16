@@ -62,8 +62,8 @@ class FilterModel {
         this._categories = [];
         this._filter = {
             categories: [],
-            price_from: null,
-            price_to: null,
+            price_from: 0,
+            price_to: 0,
             only_discounted: false,
         };
         this._sort = 'rating-descending';
