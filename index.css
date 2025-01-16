@@ -1,0 +1,12 @@
+.card__title {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+            line-clamp: 2; 
+    -webkit-box-orient: vertical;
+}
+
+.catd__img {
+    min-height: 10rem;
+    max-height: 10rem;
+}
