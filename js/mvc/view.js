@@ -103,7 +103,7 @@ class ProductsView {
 
     _createHTMLProductPrice(product) {
         let template = '';
-        const discount = Math.round(
+        const discount = 100 - Math.round(
             product.discount_price / product.actual_price * 100
         );
 
