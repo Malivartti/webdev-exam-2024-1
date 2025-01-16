@@ -27,14 +27,6 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <div class="d-flex flex-grow-1 justify-content-center">
-                        <div class="d-flex col-12 col-lg-8">
-                            <form class="input-group" role="search" id="product-search">
-                                <input class="form-control" type="search" placeholder="Поиск" aria-label="Поиск" name="search">
-                                <button class="btn btn-outline-primary" type="submit">Найти</button>
-                            </form>
-                        </div>
-                    </div>
                     <ul class="navbar-nav ms-auto me-4">
                         <li class="nav-item">
                             <a class="nav-link d-flex gap-2" href="index.html" title="Каталог">
@@ -62,6 +54,66 @@
             </div>
             <div>
                 <div class="h3">Оформление заказа</div>
+                <form id="cart-form" class="row">
+                    <div class="col-12 col-md-6">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Имя</label>
+                            <input type="text" class="form-control" id="name" name="full_name" required="">
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Телефон</label>
+                            <input type="text" class="form-control" id="phone" name="phone" required="">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required="">
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="subscribe" name="subscribe">
+                            <label class="form-check-label" for="subscribe">Согласие на получение рассылки</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Комментарий к заказу</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+                         </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Адрес доставки</label>
+                            <input type="text" class="form-control" id="address" name="delivery_address" required="">
+                        </div>
+                        <div class="mb-3">
+                            <label for="delivery_date" class="form-label">Дата доставки</label>
+                            <input type="date" class="form-control" id="delivery_date" name="delivery_date" required="">
+                        </div>
+                        <div class="mb-3">
+                            <label for="delivery_interval" class="form-label">Временной интервал доставки</label>
+                            <select class="form-select" id="delivery_interval" name="delivery_interval" required="">
+                                <option value="" selected="" disabled="">Выберите время</option>
+                                <option value="08:00-12:00">08:00-12:00</option>
+                                <option value="12:00-14:00">12:00-14:00</option>
+                                <option value="14:00-18:00">14:00-18:00</option>
+                                <option value="18:00-22:00">18:00-22:00</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <div class="fs-5 text-center">Итоговая стоимость: <span id="cart-total-price"></span>₽</div>
+                            <div class="text-center">(стоимость доставки <span id="cart-delivery-price"></span>₽)</div>
+                        </div>
+                        <div class="d-flex gap-5 justify-content-center">
+                            <button type="reset" class="btn btn-outline-secondary">Сбросить</button>
+                            <button type="submit" class="btn btn-primary" id="create-order">Оформить</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="toast-container position-fixed top-10 start-50 translate-middle-x">
+            <div id="toast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                <div class="toast-body" id="toast-message"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
             </div>
         </div>
     </main>

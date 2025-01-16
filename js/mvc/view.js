@@ -223,8 +223,68 @@ class FilterView {
     }
 }
 
+class CartFormView {
+    constructor() {
+        this._form = document.getElementById('cart-form');
+        this._deliveryDateInput = this._form.querySelector('#delivery_date');
+        this._deliveryIntervalInput = this._form
+            .querySelector('#delivery_interval');
+        this._totalPriceSpan = document.getElementById('cart-total-price');
+        this._deliveryPriceSpan = document
+            .getElementById('cart-delivery-price');
+    }
+
+    render(totalPrice, deliveryPrice) {
+        this._totalPriceSpan.textContent = totalPrice;
+        this._deliveryPriceSpan.textContent = deliveryPrice;
+    }
+
+    handleChangeDelivery(onChangeDate, onChangeInterval) {
+        this._deliveryDateInput.addEventListener('change', (e) => {
+            onChangeDate(new Date(e.target.value));
+        });
+        this._deliveryIntervalInput.addEventListener('change', (e) => {
+            onChangeInterval(e.target.value);
+        });
+    }
+
+    onSubmitForm(callback) {
+        this._form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            callback(new FormData(e.target));
+        });
+    }
+}
+
+class ToastifyView {
+    constructor() {
+        this._toastContainer = document.getElementById('toast');
+        this._toastMessage = this._toastContainer
+            .querySelector('#toast-message');
+        this._toast = bootstrap.Toast.getOrCreateInstance(this._toastContainer);
+    }
+
+    success(message) {
+        this._toastContainer.className = (
+            'toast align-items-center text-bg-success border-0'
+        );
+        this._toastMessage.textContent = message;
+        this._toast.show();
+    }
+
+    error(message) {
+        this._toastContainer.className = (
+            'toast align-items-center text-bg-danger border-0'
+        );
+        this._toastMessage.textContent = message;
+        this._toast.show();
+    }
+}
+
 
 export {
     ProductsView,
-    FilterView
+    FilterView,
+    CartFormView,
+    ToastifyView
 };

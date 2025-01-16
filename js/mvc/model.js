@@ -29,6 +29,24 @@ class Product {
     }
 }
 
+class Order {
+    constructor(obj) {
+        this.id = obj.id;
+        this.full_name = obj.full_name;
+        this.email = obj.email;
+        this.subscribe = obj.subscribe;
+        this.phone = obj.phone;
+        this.delivery_address = obj.delivery_address;
+        this.delivery_date = obj.delivery_date;
+        this.delivery_interval = obj.delivery_interval;
+        this.comment = obj.comment;
+        this.good_ids = obj.good_ids;
+        this.created_at = obj.created_at;
+        this.updated_at = obj.updated_at;
+        this.student_id = obj.student_id;
+    }
+}
+
 const STORAGE_KEY_SEARCH = 'product-search';
 const STORAGE_KEY_SORT = 'product-sort';
 const STORAGE_KEY_FILTER = 'product-filter';
@@ -217,8 +235,53 @@ class FilterModel {
     }
 }
 
+class CartFormModel {
+    constructor() {
+        this._priceOfProducts = 0;
+        this._deliveryDate = null;
+        this._deliveryInterval = null;
+    }
+
+    setDeliveryDate(date) {
+        this._deliveryDate = date;
+    }
+
+    setDeliveryInterval(interval) {
+        this._deliveryInterval = interval;
+    }
+
+    getDeliveryPrice() {
+        const defaultPrice = 200;
+        if (this._deliveryDate === null || this._deliveryInterval == null) {
+            return defaultPrice;
+        }
+        if (this._deliveryInterval !== '18:00-22:00') {
+            return defaultPrice;
+        }
+
+        if (
+            this._deliveryDate.getDay() === 0
+            || this._deliveryDate.getDay() === 6
+        ) {
+            return defaultPrice + 300;
+        }
+
+        return defaultPrice + 200;
+    }
+
+    setPriceOfProducts(value) {
+        this._priceOfProducts = value;
+    } 
+
+    getTotalPrice() {
+        return this._priceOfProducts + this.getDeliveryPrice();
+    }
+}
+
 export {
     Product,
+    Order,
     ProductsModel,
-    FilterModel
+    FilterModel,
+    CartFormModel,
 };

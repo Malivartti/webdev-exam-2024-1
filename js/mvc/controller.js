@@ -1,3 +1,6 @@
+import { createOrder } from "../shared/api.js";
+import { formatDDMMYYYY } from "../shared/date.js";
+
 class ProductsController {
     constructor(productsModel, productsView, filterModel, filterView) {
         this._productsModel = productsModel;
@@ -48,11 +51,79 @@ class ProductsController {
 }
 
 class CartController {
-    constructor(productsModel, productsView) {
+    constructor(
+        productsModel,
+        productsView,
+        cartFormModel,
+        cartFormView,
+        toastifyView
+    ) {
         this._productsModel = productsModel;
         this._productsView = productsView;
-        
+        this._cartFormModel = cartFormModel;
+        this._cartFormView = cartFormView;
+        this._toastifyView = toastifyView;
+
+
         this.render();
+    }
+
+    async _handleOrderCreation(formData) {
+        const cartProducts = this._productsModel.getCartProducts();
+
+        if (!cartProducts.length) {
+            this._toastifyView.error('Нет выбранных товаров');
+            return;
+        }
+
+        const data = {
+            good_ids: cartProducts.map(product => product.id)
+        };
+
+        formData.entries().forEach(([key, value]) => {
+            if (key === 'subscribe') {
+                data[key] = value === 'on';
+                return;
+            }
+            if (key === 'delivery_date') {
+                data[key] = formatDDMMYYYY(new Date(value));
+                return;
+            }
+            data[key] = value;
+        });
+
+        try {
+            await createOrder(data);
+            this._toastifyView.success('Заказ успешно создан');
+            this._productsModel.clearCart();
+            this._productsView.renderProducts(
+                this._productsModel.getCartProducts()
+            );
+        } catch (e) {
+            this._toastifyView.error('Не удалось создать заказ');
+        }
+    }
+
+    _renderCartForm() {
+        const priceOfProducts = this._productsModel.getCartProducts()
+            .reduce((acc, curr) => curr.getPrice() + acc, 0);
+        
+        this._cartFormModel.setPriceOfProducts(priceOfProducts);
+
+        this._cartFormView.render(
+            this._cartFormModel.getTotalPrice(),
+            this._cartFormModel.getDeliveryPrice(),
+        );
+    }
+
+    _handleChangeDate(date) {
+        this._cartFormModel.setDeliveryDate(date);
+        this._renderCartForm();
+    }
+
+    _handleChangeInterval(interval) {
+        this._cartFormModel.setDeliveryInterval(interval);
+        this._renderCartForm();
     }
 
     async render() {
@@ -65,11 +136,21 @@ class CartController {
                 this._productsView.renderProducts(
                     this._productsModel.getCartProducts()
                 );
+                this._renderCartForm();
             },
             this._productsModel.hasProductInCart.bind(this._productsModel)
         );
         this._productsView.renderProducts(
             this._productsModel.getCartProducts()
+        );
+
+        this._renderCartForm();
+        this._cartFormView.handleChangeDelivery(
+            this._handleChangeDate.bind(this),
+            this._handleChangeInterval.bind(this),
+        );
+        this._cartFormView.onSubmitForm(
+            this._handleOrderCreation.bind(this)
         );
     }
 }
