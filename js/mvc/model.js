@@ -269,7 +269,7 @@ class CartFormModel {
             return defaultPrice;
         }
 
-        if (isWeekends(this.delivery_date)) {
+        if (isWeekends(this._deliveryDate)) {
             return defaultPrice + 300;
         }
 

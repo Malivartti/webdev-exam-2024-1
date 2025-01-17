@@ -65,8 +65,21 @@
                 </table>
             </div>
         </div>
+
+        <div class="modal fade" id="order-modal" tabindex="-1" aria-labelledby="order modal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="order-modal__title">Modal title</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body container" id="order-modal__body"></div>
+                    <div class="modal-footer" id="order-modal__btns"></div>
+                </div> 
+            </div>
+        </div>
     
-        <div class="toast-container position-fixed top-10 start-50 translate-middle-x">
+        <div class="toast-container position-fixed top-0 pt-2 start-50 translate-middle-x">
             <div id="toast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="d-flex">
                 <div class="toast-body" id="toast-message"></div>

@@ -1,4 +1,4 @@
-import {formatDDMMYYYYHHMM} from '../shared/date.js';
+import { formatDDMMYYYYHHMM } from '../shared/date.js';
 
 class ProductsView {
     constructor() {
@@ -237,7 +237,8 @@ class CartFormView {
     }
 
     render(totalPrice, deliveryPrice) {
-        this._totalPriceSpan.textContent = totalPrice;
+        this._totalPriceSpan.textContent = parseInt(totalPrice, 10)
+            .toLocaleString();
         this._deliveryPriceSpan.textContent = deliveryPrice;
     }
 
@@ -292,6 +293,10 @@ class OrdersTableView {
         this._tableBody = document.getElementById('orders-table');
     }
 
+    handleClickBtn(openModal) {
+        this._openModal = openModal;
+    }
+
     render(orders) {
         this._tableBody.innerHTML = '';
         orders.forEach(order => {
@@ -340,15 +345,368 @@ class OrdersTableView {
         const updateOrderBtn = node.querySelector('.update-order');
         const deleteOrderBtn = node.querySelector('.delete-order');
 
+        viewOrderBtn.addEventListener('click', () =>
+            this._openModal(order, 'view')
+        );
+        updateOrderBtn.addEventListener('click', () =>
+            this._openModal(order, 'update')
+        );
+        deleteOrderBtn.addEventListener('click', () =>
+            this._openModal(order, 'delete')
+        );
         return node;
     }
 }
 
+class OrderModalView {
+    constructor() {
+        this._modalEl = document.getElementById('order-modal');
+        this._title = this._modalEl.querySelector('#order-modal__title');
+        this._body = this._modalEl.querySelector('#order-modal__body');
+        this._btns = this._modalEl.querySelector('#order-modal__btns');
+
+        this._modal = new bootstrap.Modal(this._modalEl);
+    }
+
+    showModal(order, type) {
+        switch (type) {
+        case 'view':
+            this._viewModal(order);
+            break;
+        case 'update':
+            this._updateModal(order);
+            break;
+        case 'delete':
+            this._deleteModal(order.id);
+            break;
+        }
+        
+        this._modal.show();
+    }
+
+    closeModal() {
+        this._modal.hide();
+    }
+
+    handleClickBtn(onUpdateOrder, onDeleteOrder) {
+        this._onUpdateOrder = onUpdateOrder;
+        this._onDeleteOrder = onDeleteOrder;
+    }
+
+    _closeBtn(text) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-secondary';
+        btn.textContent = text;
+        btn.addEventListener('click', () => this._modal.hide());
+        return btn;
+    }
+
+    _saveBtn() {
+        const btn = document.createElement('button');
+        btn.type = 'submit';
+        btn.className = `btn btn-primary`;
+        btn.setAttribute('form', 'order-modal__form');
+        btn.textContent = 'Сохранить';
+        return btn;
+    }
+
+    _deleteBtn(callback) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `btn btn-danger`;
+        btn.textContent = 'Да';
+        btn.addEventListener('click', () => {
+            callback();
+            this._modal.hide();
+        });
+        return btn;
+    }
+
+    _createNodeBodyRoot(type, order) {
+        let node;
+        if (type == 'view') {
+            node = document.createElement('div');
+        } else {
+            node = document.createElement('form');
+            node.id = 'order-modal__form';
+            node.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this._onUpdateOrder(order, new FormData(e.target));
+            });
+        }
+        return node;
+    }
+
+    _createHTMLName(value, type) {
+        return type === 'view' 
+            ? `
+            <div class="col-6 fw-bold">Имя</div>
+            <div class="col-6">${value}</div>
+            `
+            : `
+            <label class="form-label col-6 fw-bold" for="full_name">Имя</label>
+            <div class="col-6">
+                <input
+                    type="text"
+                    class="form-control"
+                    id="full_name"
+                    name="full_name"
+                    value="${value}"
+                    required
+                >
+            </div>
+            `;
+    }
+
+    _createHTMLPhone(value, type) {
+        return type === 'view'
+            ? `
+            <div class="col-6 fw-bold">Номер телефона</div>
+            <div class="col-6">${value}</div>
+            `
+            : `
+            <label class="form-label col-6 fw-bold" for="phone">
+                Номер телефона
+            </label>
+            <div class="col-6">
+                <input
+                    type="text"
+                    class="form-control"
+                    id="phone"
+                    name="phone"
+                    value="${value}"
+                    required
+                >
+            </div>
+            `;
+    }
+
+    _createHTMLEmail(value, type) {
+        return type === 'view' 
+            ? `
+            <div class="col-6 fw-bold">Email</div>
+            <div class="col-6">${value}</div>
+            `
+            : `
+            <label class="form-label col-6 fw-bold" for="email">
+                Email
+            </label>
+            <div class="col-6">
+                <input
+                    type="text"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    value="${value}"
+                    required
+                >
+            </div>
+            `;
+    }
+
+    _createHTMLDeliveryAddress(value, type) {
+        return type === 'view' 
+            ? `
+            <div class="col-6 fw-bold">Адрес доставки</div>
+            <div class="col-6">${value}</div>
+            `
+            : `
+            <label class="form-label col-6 fw-bold" for="delivery_address">
+                Адрес доставки
+            </label>
+            <div class="col-6">
+                <input
+                    type="text"
+                    class="form-control"
+                    id="delivery_address"
+                    name="delivery_address"
+                    value="${value}"
+                    required
+                >
+            </div>
+        `;
+    }
+
+    _createHTMLDeliveryDate(value, type) {
+        return type === 'view' 
+            ? `
+            <div class="col-6 fw-bold">Дата доставки</div>
+            <div class="col-6">${value}</div>
+            `
+            : `
+            <label class="form-label col-6 fw-bold" for="delivery_date">
+                Дата доставки
+            </label>
+            <div class="col-6">
+                <input
+                    type="date"
+                    class="form-control"
+                    id="delivery_date"
+                    name="delivery_date"
+                    value="${value.split('.').reverse().join('-')}"
+                    required
+                >
+            </div>
+        `;
+    }
+
+    _createHTMLDeliveryInterval(value, type) {
+        return type === 'view' 
+            ? `
+            <div class="col-6 fw-bold">Время доставки</div>
+            <div class="col-6">${value}</div>
+            `
+            : `
+            <label class="form-label col-6 fw-bold" for="delivery_interval">
+                Время доставки
+            </label>
+            <div class="col-6">
+                <select
+                    class="form-select"
+                    id="delivery_interval"
+                    name="delivery_interval"
+                    required
+                >
+                    <option
+                        value="08:00-12:00"
+                        ${value === "08:00-12:00" ? 'selected' : ''}
+                    >
+                        08:00-12:00
+                    </option>
+                    <option
+                        value="12:00-14:00"
+                        ${value === "12:00-14:00" ? 'selected' : ''}
+                    >
+                        12:00-14:00
+                    </option>
+                    <option
+                        value="14:00-18:00"
+                        ${value === "14:00-18:00" ? 'selected' : ''}
+                    >
+                        14:00-18:00
+                    </option>
+                    <option
+                        value="18:00-22:00"
+                        ${value === "18:00-22:00" ? 'selected' : ''}
+                    >
+                        18:00-22:00
+                    </option>
+                </select>
+            </div>
+        `;
+    }
+
+    _createHTMLComment(value, type) {
+        return type === 'view' 
+            ? `
+            <div class="col-6 fw-bold">Комментарий</div>
+            <div class="col-6">${value}</div>
+            `
+            : `
+            <label class="form-label col-6 fw-bold" for="comment">
+                Комментарий
+            </label>
+            <div class="col-6">
+                <textarea
+                    class="form-control"
+                    id="comment"
+                    name="comment"
+                    rows="3"
+                >${value}</textarea>
+            </div>
+        `;
+    }
+
+    _createNodeBody(type, order) {
+        const node = this._createNodeBodyRoot(type, order);
+        node.innerHTML = `
+        <div class="row mb-2">
+            <div class="col-6 fw-bold">Дата оформления</div>
+            <div class="col-6">
+                ${formatDDMMYYYYHHMM(order.created_at)}
+            </div>
+        </div>
+        <div class="row mb-2">
+            ${this._createHTMLName(order.full_name, type)}
+        </div>
+        <div class="row mb-2">
+            ${this._createHTMLPhone(order.phone, type)}
+        </div>
+        <div class="row mb-2">
+            ${this._createHTMLEmail(order.email, type)}
+        </div>
+        <div class="row mb-2">
+            ${this._createHTMLDeliveryAddress(order.delivery_address, type)}
+        </div>
+        <div class="row mb-2">
+            ${this._createHTMLDeliveryDate(order.delivery_date, type)}
+        </div>
+        <div class="row mb-2">
+            ${this._createHTMLDeliveryInterval(order.delivery_interval, type)}
+        </div>
+        <div class="row mb-2">
+            <div class="col-6 fw-bold">Состав заказа</div>
+            <div class="col-6 d-flex flex-column gap-3">
+                ${order.products
+        .map(product =>`<div>${product.name}</div>`)
+        .join('')}
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-6 fw-bold">Стоимость</div>
+            <div class="col-6">
+                 ${parseInt(order.totalPrice, 10).toLocaleString()} ₽
+            </div>
+        </div>
+        <div class="row mb-2">
+            ${this._createHTMLComment(order.comment ?? '', type)}
+        </div>
+        `;
+        return node;
+    }
+
+    _viewModal(order) {
+        this._title.textContent = 'Просмотр заказа';
+
+        this._body.innerHTML = '';
+        this._body.appendChild(this._createNodeBody('view', order));
+
+        this._btns.innerHTML = '';
+        this._btns.appendChild(this._closeBtn('Ок'));
+    }
+    
+    _updateModal(order) {
+        this._title.textContent = 'Редактирование заказа';
+
+        this._body.innerHTML = '';
+        this._body.appendChild(this._createNodeBody('update', order));
+
+        this._btns.innerHTML = '';
+        this._btns.appendChild(this._closeBtn('Отмена'));
+        this._btns.appendChild(this._saveBtn(() => {}));
+    }
+    
+    _deleteModal(orderId) {
+        this._title.textContent = 'Удаление заказа';
+
+        this._body.innerHTML = `
+            <div>Вы уверены, что хотите удалить заказ?</div>
+        `;
+
+        this._btns.innerHTML = '';
+        this._btns.appendChild(this._closeBtn('Нет'));
+        this._btns.appendChild(this._deleteBtn(
+            () => this._onDeleteOrder(orderId)
+        ));
+    }
+}
 
 export {
     ProductsView,
     FilterView,
     CartFormView,
     ToastifyView,
-    OrdersTableView
+    OrdersTableView,
+    OrderModalView
 };

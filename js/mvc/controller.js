@@ -1,4 +1,6 @@
-import { createOrder, getOrders } from "../shared/api.js";
+import { 
+    createOrder, updateOrder, deleteOrder, getOrders 
+} from "../shared/api.js";
 import { formatDDMMYYYY, isDateBefore } from "../shared/date.js";
 import { XOrder } from "./model.js";
 
@@ -82,7 +84,6 @@ class CartController {
         };
 
         for (const [key, value] of formData.entries()) {
-            console.log(key, value);
             if (key === 'subscribe') {
                 data[key] = true;
                 continue;
@@ -167,21 +168,83 @@ class CartController {
 }
 
 class OrdersTableController {
-    constructor(ordersTableView) {
+    constructor(ordersTableView, orderModalView, toastifyView) {
         this._ordersTableView = ordersTableView;
-
+        this._orderModalView = orderModalView;
+        this._toastifyView = toastifyView;
         this.render();
     }
 
-    async getXOrders() {
+    async _getXOrders() {
         const orders = await getOrders();
         return orders.map(order => new XOrder(order));
     }
 
-    async render() {
-        const xOrders = await this.getXOrders();
-        this._ordersTableView.render(xOrders);
+    async _reRender() {
+        this._ordersTableView.render(await this._getXOrders());
     }
+
+    async _onDeleteOrder(orderId) {
+        try {
+            await deleteOrder(orderId);
+            this._toastifyView.success(`Заказ №${orderId} успешно удален`);
+            await this._reRender();
+        } catch (e) {
+            this._toastifyView.error(`Не удалось удалить заказ №${orderId}`);
+        }
+    }
+
+    async _onUpdateOrder(order, formData) {
+        let deliveryDate = new Date(formData.get('delivery_date'));
+
+        if (isDateBefore(deliveryDate)) {
+            this._toastifyView.error('Дата доставки раньше текущей');
+            return;
+        }
+        formData.set('delivery_date', formatDDMMYYYY(deliveryDate));
+
+        const newOrder = {};
+        for (const [key, value] of formData.entries()) {
+            if (
+                (order[key] === value)
+                || (key === 'comment' && value === '' && order[key] === null)
+            ) {
+                continue;
+            };
+    
+            newOrder[key] = value;
+        }
+
+        if (!Object.keys(newOrder).length) {
+            this._orderModalView.closeModal();
+            return;
+        }
+
+        try {
+            await updateOrder(order.id, newOrder);
+            this._orderModalView.closeModal();
+            this._toastifyView
+                .success(`Заказ №${order.id} успешно отредактирован`);
+            await this._reRender();
+        } catch (e) {
+            this._toastifyView
+                .error(`Не удалось отредактировать заказ №${order.id}`);
+            console.log(e);
+        }
+    }
+
+    async render() {
+        await this._reRender();
+
+        this._ordersTableView.handleClickBtn(
+            this._orderModalView.showModal.bind(this._orderModalView),
+        );
+        this._orderModalView.handleClickBtn(
+            this._onUpdateOrder.bind(this),
+            this._onDeleteOrder.bind(this)
+        );
+    }
+
 }
 
 export {

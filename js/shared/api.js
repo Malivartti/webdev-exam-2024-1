@@ -91,6 +91,9 @@ export async function createOrder(body) {
 export async function updateOrder(id, body) {
     await fetchWrapper(ENDPOINTS.order.update(id), {
         method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify(body)
     });
 } 
