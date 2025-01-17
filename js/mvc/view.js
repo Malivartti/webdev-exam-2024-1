@@ -1,3 +1,5 @@
+import {formatDDMMYYYYHHMM} from '../shared/date.js';
+
 class ProductsView {
     constructor() {
         this._productCards = document.getElementById("product-cards");
@@ -285,10 +287,68 @@ class ToastifyView {
     }
 }
 
+class OrdersTableView {
+    constructor() {
+        this._tableBody = document.getElementById('orders-table');
+    }
+
+    render(orders) {
+        this._tableBody.innerHTML = '';
+        orders.forEach(order => {
+            this._tableBody.appendChild(this._createNodeRowTable(order));
+        });
+    }
+
+    _createNodeRowTable(order) {
+        const template = document.createElement('template');
+
+        template.innerHTML = `
+        <tr>
+            <th class="align-middle">
+                ${order.id}
+            </th>
+            <td class="align-middle">
+                ${formatDDMMYYYYHHMM(order.created_at)}
+            </td>
+            <td>
+                ${order.products.map(product => product.name).join(', ')}
+            </td>
+            <td class="align-middle">
+                ${parseInt(order.totalPrice, 10).toLocaleString()} ₽
+            </td>
+            <td class="align-middle">
+                ${order.delivery_date} ${order.delivery_interval}
+            </td>
+            <td class="align-middle">
+                <div class="d-flex gap-1">
+                    <button class="btn btn-sm btn-outline-secondary view-order">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning update-order">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-order">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+        `;
+        const node = template.content.cloneNode(true);
+
+        const viewOrderBtn = node.querySelector('.view-order');
+        const updateOrderBtn = node.querySelector('.update-order');
+        const deleteOrderBtn = node.querySelector('.delete-order');
+
+        return node;
+    }
+}
+
 
 export {
     ProductsView,
     FilterView,
     CartFormView,
-    ToastifyView
+    ToastifyView,
+    OrdersTableView
 };

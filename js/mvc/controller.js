@@ -1,5 +1,6 @@
-import { createOrder } from "../shared/api.js";
+import { createOrder, getOrders } from "../shared/api.js";
 import { formatDDMMYYYY, isDateBefore } from "../shared/date.js";
+import { XOrder } from "./model.js";
 
 class ProductsController {
     constructor(productsModel, productsView, filterModel, filterView) {
@@ -165,7 +166,26 @@ class CartController {
     }
 }
 
+class OrdersTableController {
+    constructor(ordersTableView) {
+        this._ordersTableView = ordersTableView;
+
+        this.render();
+    }
+
+    async getXOrders() {
+        const orders = await getOrders();
+        return orders.map(order => new XOrder(order));
+    }
+
+    async render() {
+        const xOrders = await this.getXOrders();
+        this._ordersTableView.render(xOrders);
+    }
+}
+
 export {
     ProductsController,
-    CartController
+    CartController,
+    OrdersTableController
 };

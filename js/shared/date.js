@@ -15,9 +15,26 @@ export const formatDDMMYYYY = (date) => {
     }`;
 };
 
+export const formatHHMM = (date) => {
+    return `${
+        formatDateNumber(date.getHours())
+    }:${
+        formatDateNumber(date.getMinutes())
+    }`;
+};
+  
+export const formatDDMMYYYYHHMM = (date) => {
+    return `${formatDDMMYYYY(date)} ${formatHHMM(date)}`;
+};
+
 export function isDateBefore(date) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     return date < today;
+}
+
+
+export function isWeekends(date) {
+    return date.getDay() === 0 || date.getDay() === 6;
 }

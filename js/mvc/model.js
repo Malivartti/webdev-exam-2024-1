@@ -1,5 +1,6 @@
 import { getProducts } from "../shared/api.js";
 import Storage from '../shared/storage.js';
+import { isWeekends } from '../shared/date.js';
 
 class Product {
     constructor(obj) {
@@ -41,9 +42,17 @@ class Order {
         this.delivery_interval = obj.delivery_interval;
         this.comment = obj.comment;
         this.good_ids = obj.good_ids;
-        this.created_at = obj.created_at;
-        this.updated_at = obj.updated_at;
+        this.created_at = new Date(obj.created_at);
+        this.updated_at = new Date(obj.updated_at);
         this.student_id = obj.student_id;
+    }
+}
+
+class XOrder extends Order {
+    constructor(obj) {
+        super(obj);
+        this.products = obj.products;
+        this.totalPrice = obj.totalPrice;
     }
 }
 
@@ -260,10 +269,7 @@ class CartFormModel {
             return defaultPrice;
         }
 
-        if (
-            this._deliveryDate.getDay() === 0
-            || this._deliveryDate.getDay() === 6
-        ) {
+        if (isWeekends(this.delivery_date)) {
             return defaultPrice + 300;
         }
 
@@ -282,6 +288,7 @@ class CartFormModel {
 export {
     Product,
     Order,
+    XOrder,
     ProductsModel,
     FilterModel,
     CartFormModel,
