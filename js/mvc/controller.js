@@ -1,5 +1,5 @@
 import { createOrder } from "../shared/api.js";
-import { formatDDMMYYYY } from "../shared/date.js";
+import { formatDDMMYYYY, isDateBefore } from "../shared/date.js";
 
 class ProductsController {
     constructor(productsModel, productsView, filterModel, filterView) {
@@ -80,17 +80,25 @@ class CartController {
             good_ids: cartProducts.map(product => product.id)
         };
 
-        formData.entries().forEach(([key, value]) => {
+        for (const [key, value] of formData.entries()) {
+            console.log(key, value);
             if (key === 'subscribe') {
-                data[key] = value === 'on';
-                return;
+                data[key] = true;
+                continue;
             }
             if (key === 'delivery_date') {
-                data[key] = formatDDMMYYYY(new Date(value));
-                return;
+                const date = new Date(value);
+                
+                if (isDateBefore(date)) {
+                    this._toastifyView.error('Дата доставки раньше текущей');
+                    return;
+                }
+
+                data[key] = formatDDMMYYYY(date);
+                continue;
             }
             data[key] = value;
-        });
+        };
 
         try {
             await createOrder(data);
@@ -99,8 +107,10 @@ class CartController {
             this._productsView.renderProducts(
                 this._productsModel.getCartProducts()
             );
+            this._cartFormView.resetForm();
         } catch (e) {
             this._toastifyView.error('Не удалось создать заказ');
+            console.log(e);
         }
     }
 

@@ -53,6 +53,9 @@ export async function getOrder(id) {
 export async function createOrder(body) {
     await fetchWrapper(ENDPOINTS.order.create(), {
         method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify(body)
     });
 }

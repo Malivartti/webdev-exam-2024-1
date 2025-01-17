@@ -254,6 +254,10 @@ class CartFormView {
             callback(new FormData(e.target));
         });
     }
+
+    resetForm() {
+        this._form.reset();
+    }
 }
 
 class ToastifyView {

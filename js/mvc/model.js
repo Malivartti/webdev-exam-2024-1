@@ -109,6 +109,7 @@ class ProductsModel {
 
     clearCart() {
         this._cart.clear();
+        this._saveCart();
     }
 
     getCartProducts() {

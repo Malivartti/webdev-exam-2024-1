@@ -14,3 +14,10 @@ export const formatDDMMYYYY = (date) => {
         date.getFullYear()
     }`;
 };
+
+export function isDateBefore(date) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return date < today;
+}
