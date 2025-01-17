@@ -1,6 +1,6 @@
 import { getProducts } from "../shared/api.js";
 import Storage from '../shared/storage.js';
-import { isWeekends } from '../shared/date.js';
+import { formatDDMMYYYY, isWeekends } from '../shared/date.js';
 
 class Product {
     constructor(obj) {
@@ -38,7 +38,7 @@ class Order {
         this.subscribe = obj.subscribe;
         this.phone = obj.phone;
         this.delivery_address = obj.delivery_address;
-        this.delivery_date = obj.delivery_date;
+        this.delivery_date = formatDDMMYYYY(new Date(obj.delivery_date));
         this.delivery_interval = obj.delivery_interval;
         this.comment = obj.comment;
         this.good_ids = obj.good_ids;
